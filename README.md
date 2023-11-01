@@ -190,4 +190,60 @@ Sửa tệp tin /etc/ssh/sshd_configvà thiết lập tham số:
 
 PermitEmptyPasswords no
 
+# 3.6 Set Password Expiration Days /  Set Password Change Minimum Number of Days
+- Tham số PASS_MAX_DAYS trong /etc/login.defs cho phép người quản trị bắt buộc mật khẩu phải hết hạn sau một khoảng thời gian nhất định.
+- Kiểm tra tham số:
+
+grep PASS_MAX_DAYS /etc/login.defs
+PASS_MAX_DAYS 90**
+
+Kiểm tra tham số với người dùng cụ thể:
+
+chage --list <user>
+
+Sửa tệp tin /etc/login.defs và thiết lập tham số:
+
+Maximum number of days between password change: 90
+PASS_MAX_DAYS 90
+
+Sửa tham số trực tiếp với người dùng cụ thể:
+
+chage --maxdays 90 <user>
+
+![image](https://github.com/Nessa13044/HARDENING/assets/114730329/d472b64b-0540-4bd4-9bd2-f2bed033c7d0)
+
+# 3.7 Disable System Accounts
+
+Có một số tài khoản được cung cấp sử dụng để quản lý ứng dụng nhưng không được cấu hình để cung cấp tương tác với shell. Việc này là quan trọng để đảm bảo tài khoản không được dùng bởi người dùng thông thường.
+
+Theo mặc định, Ubuntu thiết lập mật khẩu cho những tài khoản này là một chuỗi không hợp lệ, nhưng nó cũng được khuyến khích đặt đường dẫn shell là /usr/sbin/nologin. Điều này ngăn cản các tài khoản thực thi bất cứ lệnh nào.
+
+# 3.8 Set Default umask for Users
+
+Umask mặc định xác định các quyền hạn của tập tin được tạo bởi người dùng. Người dùng tạo ra các tập tin và làm cho tập tin và thư mục của họ có thể đọc được bởi những người khác thông qua lệnh chmod.
+- grep "^UMASK" /etc/login.defs
+UMASK 077
+Mở tệp tin /etc/login.defs và thiết lập tham số UMASK
+UMASK 077
+-  Base Permission là giá trị được thiết lập sẵn từ trước, và ta không thể thay đổi được
++ đối với file thông thườnggiá trị base perm là 666 (rw-rw-rw-)
+
++ đối với thư mục (file đặc biệt) giá trị base perm là 777 (rwxrwxrwx)
++  Base Permission của file bất kỳ luôn là 666 (tức 110110110 khi chuyển sang dạng nhị phân), nên nếu giá trị mask là 022 (có dạng nhị phân là 000010010 => dạng bù 1 của nó thì chuyển 1->0, 0->1 nên ta được 111101101) thì quyền truy nhập chính thức của file sẽ là:
+
+110 110 110 AND 111 101 101 = 110 100 100 = 644 (rw-r–r–)
+
+Cũng có thể tính quyền truy cập chính thức đơn giản hơn bằng cách lấy 666 – 022 = 644
+# 3.9 Lock Inactive User Accounts
+
+Tài khoản người dùng không hoạt động trong một khoảng thời gian nhất định có thể được tự động vô hiệu hóa.
+
+useradd -D | grep INACTIVE
+useradd -D -f <day>
+# _______________________________________________________________________
+# Mastering Discretionary Access Control
+- Using chown to change ownership of files and directories ( ex: sudo chown maggie:maggie perm_demo.txt )
+- Using extended file attributes to protect sensitive files ( ex: sudo chattr +i perm_demo.txt )
+# Implementing Mandatory Access Control with SELinux and appArmor
+- 
 
